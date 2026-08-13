@@ -291,11 +291,15 @@ bool Instance::CreateDevice() {
     fragment_shader_barycentric =
         add_extension(VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME);
     if (fragment_shader_barycentric) {
-        auto& barycentric_features =
-            feature_chain.get<vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
-        LOG_INFO(Render_Vulkan, "- fragmentShaderBarycentric: {}",
-                 barycentric_features.fragmentShaderBarycentric);
-    }
+    auto barycentric_features =
+        physical_device.getFeatures2<vk::PhysicalDeviceFeatures2,
+                                     vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
+    auto& barycentric_ext =
+        barycentric_features.get<vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
+
+    LOG_INFO(Render_Vulkan, "- fragmentShaderBarycentric: {}",
+             static_cast<bool>(barycentric_ext.fragmentShaderBarycentric));
+}
 }
     legacy_vertex_attributes = add_extension(VK_EXT_LEGACY_VERTEX_ATTRIBUTES_EXTENSION_NAME);
     provoking_vertex = add_extension(VK_EXT_PROVOKING_VERTEX_EXTENSION_NAME);
