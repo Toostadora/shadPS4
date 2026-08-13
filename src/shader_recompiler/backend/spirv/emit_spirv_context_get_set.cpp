@@ -113,9 +113,9 @@ Id EmitGetAttribute(EmitContext& ctx, IR::Attribute attr, u32 comp, u32 index) {
         }();
         return param.is_integer ? ctx.OpBitcast(ctx.F32[1], value) : value;
     }
-    if (IR::IsBarycentricCoord(attr) && ctx.profile.supports_fragment_shader_barycentric) {
-        ++comp;
-    }
+    // if (IR::IsBarycentricCoord(attr) && ctx.profile.supports_fragment_shader_barycentric) {
+    //    ++comp;
+    // }
     switch (attr) {
     case IR::Attribute::Position0:
         ASSERT(ctx.l_stage == LogicalStage::Geometry);
