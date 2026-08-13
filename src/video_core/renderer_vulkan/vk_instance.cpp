@@ -288,9 +288,15 @@ bool Instance::CreateDevice() {
     amd_shader_explicit_vertex_parameter =
         add_extension(VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_EXTENSION_NAME);
     if (!amd_shader_explicit_vertex_parameter) {
-        fragment_shader_barycentric =
-            add_extension(VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME);
+    fragment_shader_barycentric =
+        add_extension(VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME);
+    if (fragment_shader_barycentric) {
+        auto& barycentric_features =
+            feature_chain.get<vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
+        LOG_INFO(Render_Vulkan, "- fragmentShaderBarycentric: {}",
+                 barycentric_features.fragmentShaderBarycentric);
     }
+}
     legacy_vertex_attributes = add_extension(VK_EXT_LEGACY_VERTEX_ATTRIBUTES_EXTENSION_NAME);
     provoking_vertex = add_extension(VK_EXT_PROVOKING_VERTEX_EXTENSION_NAME);
     shader_stencil_export = add_extension(VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME);
