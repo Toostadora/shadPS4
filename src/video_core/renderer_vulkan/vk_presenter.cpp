@@ -21,7 +21,7 @@
 
 namespace Vulkan {
 
-static void LogDeviceFault(const Instance& instance) {
+void LogDeviceFault(const Instance& instance) {
     if (!instance.IsDeviceFaultSupported()) {
         LOG_CRITICAL(Render_Vulkan, "VK_EXT_device_fault not enabled, no fault details available");
         return;

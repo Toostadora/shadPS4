@@ -141,6 +141,9 @@ bool Swapchain::Present() {
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
         needs_recreation = true;
     } else {
+        if (result == vk::Result::eErrorDeviceLost) {
+            LogDeviceFault(instance);
+        }
         ASSERT_MSG(result == vk::Result::eSuccess, "Swapchain presentation failed: {}",
                    vk::to_string(result));
     }
@@ -334,5 +337,8 @@ void Swapchain::SetupImages() {
         SetObjectName(device, images_view[i], "Swapchain ImageView {}", i);
     }
 }
+
+/// Logs VK_EXT_device_fault details for the given instance, if supported.
+void LogDeviceFault(const Instance& instance);
 
 } // namespace Vulkan
