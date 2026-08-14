@@ -19,6 +19,8 @@
 #include <imgui.h>
 #include <vk_mem_alloc.h>
 
+namespace Vulkan {
+
 static void LogDeviceFault(const Instance& instance) {
     if (!instance.IsDeviceFaultSupported()) {
         LOG_CRITICAL(Render_Vulkan, "VK_EXT_device_fault not enabled, no fault details available");
@@ -44,7 +46,7 @@ static void LogDeviceFault(const Instance& instance) {
         return;
     }
 
-    LOG_CRITICAL(Render_Vulkan, "Device fault description: {}", info.description);
+    LOG_CRITICAL(Render_Vulkan, "Device fault description: {}", info.description.data());
     for (const auto& addr : address_infos) {
         LOG_CRITICAL(Render_Vulkan,
                      "  Fault address: reported=0x{:x} type={} lower=0x{:x} upper=0x{:x}",
@@ -54,11 +56,9 @@ static void LogDeviceFault(const Instance& instance) {
     }
     for (const auto& vendor : vendor_infos) {
         LOG_CRITICAL(Render_Vulkan, "  Vendor fault: {} code=0x{:x} data=0x{:x}",
-                     vendor.description, vendor.vendorFaultCode, vendor.vendorFaultData);
+                     vendor.description.data(), vendor.vendorFaultCode, vendor.vendorFaultData);
     }
 }
-
-namespace Vulkan {
 
 bool CanBlitToSwapchain(const vk::PhysicalDevice physical_device, vk::Format format) {
     const vk::FormatProperties props{physical_device.getFormatProperties(format)};
