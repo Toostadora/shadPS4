@@ -244,8 +244,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .supports_image_fp32_atomic_min_max = instance_.IsShaderAtomicFloatImage32MinMaxSupported(),
         .supports_buffer_int64_atomics = instance_.IsBufferInt64AtomicsSupported(),
         .supports_shared_int64_atomics = instance_.IsSharedInt64AtomicsSupported(),
-        .supports_workgroup_explicit_memory_layout =
-            instance_.IsWorkgroupMemoryExplicitLayoutSupported(),
+        .supports_workgroup_explicit_memory_layout = false, // TEMP DIAGNOSTIC
         .supports_amd_shader_explicit_vertex_parameter =
             instance_.IsAmdShaderExplicitVertexParameterSupported(),
         .supports_fragment_shader_barycentric = instance_.IsFragmentShaderBarycentricSupported(),
