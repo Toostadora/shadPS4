@@ -19,6 +19,45 @@
 #include <imgui.h>
 #include <vk_mem_alloc.h>
 
+static void LogDeviceFault(const Instance& instance) {
+    if (!instance.IsDeviceFaultSupported()) {
+        LOG_CRITICAL(Render_Vulkan, "VK_EXT_device_fault not enabled, no fault details available");
+        return;
+    }
+    const vk::Device device = instance.GetDevice();
+
+    vk::DeviceFaultCountsEXT counts{};
+    if (device.getFaultInfoEXT(&counts, nullptr) != vk::Result::eSuccess &&
+        counts.addressInfoCount == 0 && counts.vendorInfoCount == 0) {
+        LOG_CRITICAL(Render_Vulkan, "Could not query device fault counts");
+        return;
+    }
+
+    std::vector<vk::DeviceFaultAddressInfoEXT> address_infos(counts.addressInfoCount);
+    std::vector<vk::DeviceFaultVendorInfoEXT> vendor_infos(counts.vendorInfoCount);
+    vk::DeviceFaultInfoEXT info{
+        .pAddressInfos = address_infos.empty() ? nullptr : address_infos.data(),
+        .pVendorInfos = vendor_infos.empty() ? nullptr : vendor_infos.data(),
+    };
+    if (device.getFaultInfoEXT(&counts, &info) != vk::Result::eSuccess) {
+        LOG_CRITICAL(Render_Vulkan, "Could not query device fault info");
+        return;
+    }
+
+    LOG_CRITICAL(Render_Vulkan, "Device fault description: {}", info.description);
+    for (const auto& addr : address_infos) {
+        LOG_CRITICAL(Render_Vulkan,
+                     "  Fault address: reported=0x{:x} type={} lower=0x{:x} upper=0x{:x}",
+                     addr.reportedAddress, vk::to_string(addr.addressType),
+                     addr.addressPrecision ? addr.reportedAddress - addr.addressPrecision : 0,
+                     addr.reportedAddress + addr.addressPrecision);
+    }
+    for (const auto& vendor : vendor_infos) {
+        LOG_CRITICAL(Render_Vulkan, "  Vendor fault: {} code=0x{:x} data=0x{:x}",
+                     vendor.description, vendor.vendorFaultCode, vendor.vendorFaultData);
+    }
+}
+
 namespace Vulkan {
 
 bool CanBlitToSwapchain(const vk::PhysicalDevice physical_device, vk::Format format) {
@@ -233,6 +272,9 @@ Frame* Presenter::PrepareLastFrame() {
         }
         if (result == vk::Result::eTimeout) {
             continue;
+        }
+        if (result == vk::Result::eErrorDeviceLost) {
+            LogDeviceFault(instance);
         }
         ASSERT_MSG(result != vk::Result::eErrorDeviceLost,
                    "Device lost during waiting for a frame");
@@ -640,6 +682,9 @@ Frame* Presenter::GetRenderFrame() {
 
     // Wait for the presentation to be finished so all frame resources are free
     while (wait() != vk::Result::eSuccess) {
+        if (result == vk::Result::eErrorDeviceLost) {
+            LogDeviceFault(instance);
+        }
         ASSERT_MSG(result != vk::Result::eErrorDeviceLost,
                    "Device lost during waiting for a frame");
         // Retry if the waiting times out

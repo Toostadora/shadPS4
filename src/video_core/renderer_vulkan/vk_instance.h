@@ -194,6 +194,11 @@ public:
     bool IsProvokingVertexSupported() const {
         return provoking_vertex;
     }
+    
+    /// Returns true when VK_EXT_device_fault is supported.
+    bool IsDeviceFaultSupported() const {
+        return device_fault;
+    }
 
     /// Returns true when VK_AMD_shader_image_load_store_lod is supported.
     bool IsImageLoadStoreLodSupported() const {
@@ -492,6 +497,7 @@ private:
     bool list_restart{};
     bool legacy_vertex_attributes{};
     bool provoking_vertex{};
+    bool device_fault{};
     bool shader_stencil_export{};
     bool image_load_store_lod{};
     bool amd_gcn_shader{};
