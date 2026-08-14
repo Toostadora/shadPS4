@@ -514,4 +514,7 @@ private:
     std::vector<size_t> valid_heaps;
 };
 
+/// Logs VK_EXT_device_fault details for the given instance, if supported.
+void LogDeviceFault(const Instance& instance);
+
 } // namespace Vulkan

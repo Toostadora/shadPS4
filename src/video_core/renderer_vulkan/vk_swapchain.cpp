@@ -338,7 +338,4 @@ void Swapchain::SetupImages() {
     }
 }
 
-/// Logs VK_EXT_device_fault details for the given instance, if supported.
-void LogDeviceFault(const Instance& instance);
-
 } // namespace Vulkan
