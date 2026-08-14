@@ -140,6 +140,9 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
 
     EndRendering();
     auto end_result = current_cmdbuf.end();
+    if (end_result == vk::Result::eErrorDeviceLost) {
+        LogDeviceFault(instance);
+    }
     ASSERT_MSG(end_result == vk::Result::eSuccess, "Failed to end command buffer: {}",
                vk::to_string(end_result));
 
@@ -171,6 +174,9 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
 
     ImGui::Core::TextureManager::Submit();
     auto submit_result = instance.GetGraphicsQueue().submit(submit_info, info.fence);
+    if (submit_result == vk::Result::eErrorDeviceLost) {
+        LogDeviceFault(instance);
+    }
     ASSERT_MSG(submit_result != vk::Result::eErrorDeviceLost, "Device lost during submit");
 
     master_semaphore.Refresh();
