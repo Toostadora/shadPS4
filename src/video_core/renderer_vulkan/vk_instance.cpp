@@ -285,6 +285,7 @@ bool Instance::CreateDevice() {
     depth_clip_enable = add_extension(VK_EXT_DEPTH_CLIP_ENABLE_EXTENSION_NAME);
     vertex_input_dynamic_state = add_extension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME);
     list_restart = add_extension(VK_EXT_PRIMITIVE_TOPOLOGY_LIST_RESTART_EXTENSION_NAME);
+    device_fault = add_extension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME);
     amd_shader_explicit_vertex_parameter =
         add_extension(VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_EXTENSION_NAME);
     if (!amd_shader_explicit_vertex_parameter) {
@@ -469,6 +470,9 @@ bool Instance::CreateDevice() {
         vk::PhysicalDeviceProvokingVertexFeaturesEXT{
             .provokingVertexLast = true,
         },
+        vk::PhysicalDeviceFaultFeaturesEXT{
+            .deviceFault = true,
+        },
         vk::PhysicalDeviceVertexAttributeDivisorFeatures{
             .vertexAttributeInstanceRateDivisor = true,
         },
@@ -548,6 +552,9 @@ bool Instance::CreateDevice() {
     }
     if (!provoking_vertex) {
         device_chain.unlink<vk::PhysicalDeviceProvokingVertexFeaturesEXT>();
+    }
+    if (!device_fault) {
+        device_chain.unlink<vk::PhysicalDeviceFaultFeaturesEXT>();
     }
     if (!maintenance_8) {
         device_chain.unlink<vk::PhysicalDeviceMaintenance8FeaturesKHR>();
