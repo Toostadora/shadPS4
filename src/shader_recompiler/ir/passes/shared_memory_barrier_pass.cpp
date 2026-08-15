@@ -65,6 +65,9 @@ static void EmitBarrierInMergeBlock(const IR::AbstractSyntaxNode::Data& data,
                 inst->Arg(0).Attribute() == IR::Attribute::LocalInvocationId) {
                 return true;
             }
+            if (inst->GetOpcode() == IR::Opcode::LaneId) {
+                return true;
+            }
             return std::nullopt;
         });
     if (is_divergent_cond) {
