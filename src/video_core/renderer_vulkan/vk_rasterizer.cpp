@@ -576,19 +576,14 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
             // TEMP DIAGNOSTIC: dump dword offset 8 of the first buffer bound for the
             // suspect compute pipeline (0xd106669615d70cf0 / shader 0x4b5d4f31).
             if (stage.pgm_hash == 0x4b5d4f31 && i == 0) {
-                const u32* raw = reinterpret_cast<const u32*>(
-                    memory->GetPointer(vsharp.base_address));
-                if (raw) {
-                    LOG_CRITICAL(Render_Vulkan,
-                                 "DIAG ssbo_1 raw dwords @0x{:x}: [0]=0x{:08x} [1]=0x{:08x} "
-                                 "[2]=0x{:08x} [3]=0x{:08x} [4]=0x{:08x} [5]=0x{:08x} "
-                                 "[6]=0x{:08x} [7]=0x{:08x} [8]=0x{:08x} [9]=0x{:08x}",
-                                 vsharp.base_address, raw[0], raw[1], raw[2], raw[3], raw[4],
-                                 raw[5], raw[6], raw[7], raw[8], raw[9]);
-                } else {
-                    LOG_CRITICAL(Render_Vulkan, "DIAG ssbo_1: memory->GetPointer returned null "
-                                                "for address 0x{:x}", vsharp.base_address);
-                }
+                u32 raw[10]{};
+                memory->CopySparseMemory(vsharp.base_address, raw, sizeof(raw));
+                LOG_CRITICAL(Render_Vulkan,
+                             "DIAG ssbo_1 raw dwords @0x{:x}: [0]=0x{:08x} [1]=0x{:08x} "
+                             "[2]=0x{:08x} [3]=0x{:08x} [4]=0x{:08x} [5]=0x{:08x} "
+                             "[6]=0x{:08x} [7]=0x{:08x} [8]=0x{:08x} [9]=0x{:08x}",
+                             vsharp.base_address, raw[0], raw[1], raw[2], raw[3], raw[4],
+                             raw[5], raw[6], raw[7], raw[8], raw[9]);
             }
             const auto [vk_buffer, offset] = buffer_cache.ObtainBuffer(
                 vsharp.base_address, size, desc.is_written, desc.is_formatted, buffer_id);
