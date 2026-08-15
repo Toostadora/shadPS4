@@ -576,15 +576,26 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
             // TEMP DIAGNOSTIC: dump dword offset 8 of the first buffer bound for the
             // suspect compute pipeline (0xd106669615d70cf0 / shader 0x4b5d4f31).
             if (stage.pgm_hash == 0x4b5d4f31 && i == 0) {
-                u32 raw[10]{};
-                memory->CopySparseMemory(vsharp.base_address, reinterpret_cast<u8*>(raw), sizeof(raw));
-                LOG_CRITICAL(Render_Vulkan,
-                             "DIAG ssbo_1 raw dwords @0x{:x}: [0]=0x{:08x} [1]=0x{:08x} "
-                             "[2]=0x{:08x} [3]=0x{:08x} [4]=0x{:08x} [5]=0x{:08x} "
-                             "[6]=0x{:08x} [7]=0x{:08x} [8]=0x{:08x} [9]=0x{:08x}",
-                             vsharp.base_address, raw[0], raw[1], raw[2], raw[3], raw[4],
-                             raw[5], raw[6], raw[7], raw[8], raw[9]);
-            }
+    constexpr u32 DumpDwords = 128;
+    u32 raw[DumpDwords]{};
+
+    memory->CopySparseMemory(
+        vsharp.base_address,
+        reinterpret_cast<u8*>(raw),
+        sizeof(raw)
+    );
+
+    std::string dump;
+    for (u32 j = 0; j < DumpDwords; j++) {
+        dump += fmt::format("[{:03}]={:08x} ", j, raw[j]);
+        if ((j + 1) % 4 == 0)
+            dump += '\n';
+    }
+
+    LOG_CRITICAL(Render_Vulkan,
+        "DIAG ssbo @0x{:x}\n{}",
+        vsharp.base_address, dump);
+}
             const auto [vk_buffer, offset] = buffer_cache.ObtainBuffer(
                 vsharp.base_address, size, desc.is_written, desc.is_formatted, buffer_id);
             const u32 offset_aligned = Common::AlignDown(offset, alignment);
