@@ -254,8 +254,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
             instance.GetDriverID() == vk::DriverId::eMoltenvk,
         .needs_manual_interpolation = instance.IsFragmentShaderBarycentricSupported() &&
                                       instance.GetDriverID() == vk::DriverId::eNvidiaProprietary,
-        .needs_lds_barriers = instance.GetDriverID() == vk::DriverId::eNvidiaProprietary ||
-                              instance.GetDriverID() == vk::DriverId::eMoltenvk,
+        .needs_lds_barriers = false, // TEMP DIAGNOSTIC
         .needs_buffer_offsets = instance.StorageMinAlignment() > 4,
         .needs_unorm_fixup = instance.GetDriverID() == vk::DriverId::eMoltenvk,
         // When binding a UBO, we calculate its size considering the offset in the larger buffer
