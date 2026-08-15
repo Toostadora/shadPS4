@@ -577,7 +577,7 @@ void Rasterizer::BindBuffers(const Shader::Info& stage, Shader::Backend::Binding
             // suspect compute pipeline (0xd106669615d70cf0 / shader 0x4b5d4f31).
             if (stage.pgm_hash == 0x4b5d4f31 && i == 0) {
                 u32 raw[10]{};
-                memory->CopySparseMemory(vsharp.base_address, raw, sizeof(raw));
+                memory->CopySparseMemory(vsharp.base_address, reinterpret_cast<u8*>(raw), sizeof(raw));
                 LOG_CRITICAL(Render_Vulkan,
                              "DIAG ssbo_1 raw dwords @0x{:x}: [0]=0x{:08x} [1]=0x{:08x} "
                              "[2]=0x{:08x} [3]=0x{:08x} [4]=0x{:08x} [5]=0x{:08x} "
